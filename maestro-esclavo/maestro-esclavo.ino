@@ -1,20 +1,12 @@
+//link del tutorial https://www.youtube.com/watch?v=KfxvCSsvWWc&ab_channel=Roboticoss
 #include <ESP8266WiFi.h>
 #include <ModbusTCPSlave.h>
 #include <Ticker.h>
 
-//#include <Servo.h>
-//Servo myservo;
-////serial communication
-//String inputString = "";
-//boolean isReceive = false;
-////servo angle
-//int angulo = 0;
-
 byte ip[]   ={192, 168, 1, 150};
 byte gateway[]={192,168,1,1};
 byte subnet[]={255,255,255,0}; 
-String Network = "MovistarFibra-4176B2_ext";
-String Password = "valeruchi123";
+
 
 Ticker Sample;
 ModbusTCPSlave Mb;

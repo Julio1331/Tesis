@@ -2,13 +2,13 @@ from pyModbusTCP.client import ModbusClient
 from tkinter import *
 import time
 
-SERVER_HOST = "192.168.1.150"
+SERVER_HOST = "192.168.1.60"
 SERVER_PORT = 502
 
 client = ModbusClient()
 
 client.host(SERVER_HOST)
-'192.168.1.50'
+
 client.port(SERVER_PORT)
 502
 def askQuit():
@@ -23,6 +23,9 @@ def angle(int):
     if client.is_open():
         client.write_single_register(0,slider.get())
 
+    if client.is_open():
+        dato = client.read_holding_registers(5)
+        print(dato)
     time.sleep(0.1)
 
 root = Tk()
