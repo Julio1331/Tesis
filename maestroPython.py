@@ -2,7 +2,7 @@ from pyModbusTCP.client import ModbusClient
 from tkinter import *
 import time
 
-SERVER_HOST = "192.168.1.60"
+SERVER_HOST = "192.168.1.47"
 SERVER_PORT = 502
 
 client = ModbusClient()
@@ -21,12 +21,13 @@ def angle(int):
             print("no hay conexion "+ SERVER_HOST+":"+str(SERVER_PORT))
 
     if client.is_open():
-        client.write_single_register(0,slider.get())
+        client.write_single_register(13,slider.get())
 
     if client.is_open():
         dato = client.read_holding_registers(5)
         print(dato)
     time.sleep(0.1)
+
 
 root = Tk()
 root.protocol("WM_DELETE_WINDOW", askQuit)

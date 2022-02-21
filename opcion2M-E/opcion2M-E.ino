@@ -1,9 +1,3 @@
-/*
-  More Tutorials:
-  Website http://trialcommand.com
-  In English: http://en.trialcommand.com
-  En Español: http://en.trialcommand.com
-*/
 #include <ESP8266WiFi.h>
 
 const char* ssid = "MovistarFibra-4176B2_ext";
@@ -89,26 +83,25 @@ void loop() {
 
   // Modbus TCP/IP
   while (client.connected()) {
-
     if (client.available())
     {
       flagClientConnected = 1;
       int i = 0;
       while (client.available())
       {
-        ByteArray[i] = client.read();
+        ByteArray[i] = client.read();//lee 260 bytes  
         i++;
       }
 
       client.flush();
 
-      ///////// Holding Register [0] A [9] = 10 Holding Registers Escritura
       ///////// Holding Register [0] A [9] = 10 Holding Registers Writing
+      // registros donde esribe el esclavo para enviar al maestro
 
       MBHoldingRegister[10] = random(0, 12);
       MBHoldingRegister[1] = random(0, 12);
       MBHoldingRegister[2] = random(0, 12);
-      MBHoldingRegister[3] = random(0, 12);
+      MBHoldingRegister[2] = random(0, 12);
       MBHoldingRegister[4] = 44;
       MBHoldingRegister[5] = -55;
       MBHoldingRegister[6] = 66;
@@ -118,13 +111,12 @@ void loop() {
 
 
 
-
-      ///////// Holding Register [10] A [19] = 10 Holding Registers Lectura
       ///// Holding Register [10] A [19] = 10 Holding Registers Reading
+      //registros donde escribe el maestro
 
       int Temporal[10];
 
-      Temporal[0] = MBHoldingRegister[0];
+      Temporal[0] = MBHoldingRegister[3];
       Temporal[1] = MBHoldingRegister[11];
       Temporal[2] = MBHoldingRegister[12];
       Temporal[3] = MBHoldingRegister[13];
@@ -154,8 +146,19 @@ void loop() {
 
       //// rutine Modbus TCP
       byteFN = ByteArray[MB_TCP_FUNC];
+      Serial.println("******************1");
+      Serial.println(ByteArray[MB_TCP_REGISTER_START]);
+      Serial.println(ByteArray[MB_TCP_REGISTER_START+1]);
+      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER]);
+      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER+1]);
+      Serial.println("******************2");
+      
       Start = word(ByteArray[MB_TCP_REGISTER_START], ByteArray[MB_TCP_REGISTER_START + 1]);
       WordDataLength = word(ByteArray[MB_TCP_REGISTER_NUMBER], ByteArray[MB_TCP_REGISTER_NUMBER + 1]);
+      
+      Serial.println(Start);
+      Serial.println(WordDataLength);
+      Serial.println("******************3");
     }
 
     // Handle request
