@@ -2,7 +2,7 @@ from pyModbusTCP.client import ModbusClient
 from tkinter import *
 import time
 
-SERVER_HOST = "192.168.1.47"
+SERVER_HOST = "192.168.1.72"
 SERVER_PORT = 502
 
 client = ModbusClient()
@@ -24,7 +24,7 @@ def angle(int):
         client.write_single_register(13,slider.get())
 
     if client.is_open():
-        dato = client.read_holding_registers(5)
+        dato = client.read_holding_registers(0,10)
         print(dato)
     time.sleep(0.1)
 

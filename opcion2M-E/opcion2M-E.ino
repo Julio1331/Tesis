@@ -6,7 +6,8 @@ int ModbusTCP_port = 502;
 
 //////// Required for Modbus TCP / IP /// Requerido para Modbus TCP/IP /////////
 #define maxInputRegister 20
-#define maxHoldingRegister 20
+//#define maxHoldingRegister 20
+#define maxHoldingRegister 1000// si aca pongo 10000 y en el arreglo de flotantes y[]tambien, no se puede compilar, exede la memoria con 8000 solo queda el 20% de la memoria dinamica
 
 #define MB_FC_NONE 0
 #define MB_FC_READ_REGISTERS 3 //implemented
@@ -62,11 +63,21 @@ void setup() {
   Serial.println("Modbus TCP/IP Online");
 
 }
-
-
+//variables para la funcion de prueba
+float t = 0, tfin = 2, tpass = 0.001, y[1000], f = 100;
+int amp = 5, ind = 0;
 void loop() {
-
-
+  //funcion a devolver en este caso va a ser una funcion seno de prueba
+      while (t <= tfin)
+      {
+        y[ind] = amp * sin(2 * PI * f * t);
+        ind++;
+        t = t+tpass;
+        Serial.print("t= ");
+        Serial.print(t-tpass);
+        Serial.print(" sin= ");
+        Serial.println(y[ind-1]);
+      }
   // Check if a client has connected // Modbus TCP/IP
   WiFiClient client = MBServer.available();
   if (!client) {
@@ -89,7 +100,7 @@ void loop() {
       int i = 0;
       while (client.available())
       {
-        ByteArray[i] = client.read();//lee 260 bytes  
+        ByteArray[i] = client.read();//lee 260 bytes
         i++;
       }
 
@@ -98,16 +109,34 @@ void loop() {
       ///////// Holding Register [0] A [9] = 10 Holding Registers Writing
       // registros donde esribe el esclavo para enviar al maestro
 
-      MBHoldingRegister[10] = random(0, 12);
-      MBHoldingRegister[1] = random(0, 12);
-      MBHoldingRegister[2] = random(0, 12);
-      MBHoldingRegister[2] = random(0, 12);
-      MBHoldingRegister[4] = 44;
-      MBHoldingRegister[5] = -55;
-      MBHoldingRegister[6] = 66;
-      MBHoldingRegister[7] = random(0, 12);
-      MBHoldingRegister[8] = random(0, 12);
-      MBHoldingRegister[9] = random(0, 12);
+
+//      //funcion a devolver en este caso va a ser una funcion seno de prueba
+//      while (t <= tfin)
+//      {
+//        y[ind] = amp * sin(2 * PI * f * t);
+//        ind++;
+//        t = t+tpass;
+//      }
+      //asignación a los registros
+      for (i = 0; i <= ind; i++)
+      {
+        MBHoldingRegister[i] = (y[i]+5)*100;
+        Serial.print("paso por for: ");
+        Serial.print(y[i]);
+        Serial.print("; ");
+        Serial.println(MBHoldingRegister[i]);
+      }
+      Serial.println("PASO CONTROL");
+//      MBHoldingRegister[10] = random(0, 12);
+//      MBHoldingRegister[1] = random(0, 12);
+//      MBHoldingRegister[2] = random(0, 12);
+//      MBHoldingRegister[2] = random(0, 12);
+//      MBHoldingRegister[4] = 44;
+//      MBHoldingRegister[5] = -55;
+//      MBHoldingRegister[6] = 66;
+//      MBHoldingRegister[7] = random(0, 12);
+//      MBHoldingRegister[8] = random(0, 12);
+//      MBHoldingRegister[9] = random(0, 12);
 
 
 
@@ -148,14 +177,14 @@ void loop() {
       byteFN = ByteArray[MB_TCP_FUNC];
       Serial.println("******************1");
       Serial.println(ByteArray[MB_TCP_REGISTER_START]);
-      Serial.println(ByteArray[MB_TCP_REGISTER_START+1]);
+      Serial.println(ByteArray[MB_TCP_REGISTER_START + 1]);
       Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER]);
-      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER+1]);
+      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER + 1]);
       Serial.println("******************2");
-      
+
       Start = word(ByteArray[MB_TCP_REGISTER_START], ByteArray[MB_TCP_REGISTER_START + 1]);
       WordDataLength = word(ByteArray[MB_TCP_REGISTER_NUMBER], ByteArray[MB_TCP_REGISTER_NUMBER + 1]);
-      
+
       Serial.println(Start);
       Serial.println(WordDataLength);
       Serial.println("******************3");
