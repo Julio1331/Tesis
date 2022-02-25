@@ -1,13 +1,15 @@
 #include <ESP8266WiFi.h>
 
-const char* ssid = "MovistarFibra-4176B2_ext";
-const char* password = "valeruchi123";
+//const char* ssid = "MovistarFibra-4176B2_ext";
+//const char* password = "valeruchi123";
+const char* ssid = "motoe6";
+const char* password = "julio1518";
 int ModbusTCP_port = 502;
 
 //////// Required for Modbus TCP / IP /// Requerido para Modbus TCP/IP /////////
 #define maxInputRegister 20
 //#define maxHoldingRegister 20
-#define maxHoldingRegister 1000// si aca pongo 10000 y en el arreglo de flotantes y[]tambien, no se puede compilar, exede la memoria con 8000 solo queda el 20% de la memoria dinamica
+#define maxHoldingRegister 3000// si aca pongo 10000 y en el arreglo de flotantes y[]tambien, no se puede compilar, exede la memoria con 8000 solo queda el 20% de la memoria dinamica
 
 #define MB_FC_NONE 0
 #define MB_FC_READ_REGISTERS 3 //implemented
@@ -64,21 +66,21 @@ void setup() {
 
 }
 //variables para la funcion de prueba
-float t = 0, tfin = 2, tpass = 0.001, y[1000], f = 100;
+float t = 0, tfin = 1, tpass = 0.002, aux, f = 100;
 int amp = 5, ind = 0;
 void loop() {
   //funcion a devolver en este caso va a ser una funcion seno de prueba
-      while (t <= tfin)
-      {
-        y[ind] = amp * sin(2 * PI * f * t);
-        ind++;
-        t = t+tpass;
-        Serial.print("t= ");
-        Serial.print(t-tpass);
-        Serial.print(" sin= ");
-        Serial.println(y[ind-1]);
-      }
+      
   // Check if a client has connected // Modbus TCP/IP
+
+
+
+
+   MBHoldingRegister[0] = 0; //finaliza procesamiento
+
+
+
+  
   WiFiClient client = MBServer.available();
   if (!client) {
     return;
@@ -118,15 +120,42 @@ void loop() {
 //        t = t+tpass;
 //      }
       //asignación a los registros
-      for (i = 0; i <= ind; i++)
-      {
-        MBHoldingRegister[i] = (y[i]+5)*100;
-        Serial.print("paso por for: ");
-        Serial.print(y[i]);
-        Serial.print("; ");
-        Serial.println(MBHoldingRegister[i]);
-      }
+//      for (i = 0; i < ind; i++)
+//      {
+//        MBHoldingRegister[i] = (y[i]+5)*100;
+//        if(i == 1)
+//        {
+//          Serial.print("entro al for: ");  
+//        }
+//      }
       Serial.println("PASO CONTROL");
+
+//      while(MBHoldingRegister[6] == 0)
+//      {
+//        Serial.println("esperando para empezar"); 
+//      }
+     
+      if (t <= tfin)
+      {
+        MBHoldingRegister[0] = 1; //comienza procesamiento
+        MBHoldingRegister[1] = amp * sin(2 * PI * f * t);
+        MBHoldingRegister[2] = ((amp * sin(2 * PI * f * t))+5)*1000;
+        MBHoldingRegister[3] = ind;
+        MBHoldingRegister[4] = t;
+        MBHoldingRegister[5] = ((amp * cos(2 * PI * f * t))+5)*1000;
+        ind++;
+        t = t+tpass;
+        Serial.print("paso por if: ");
+        Serial.print(MBHoldingRegister[2]);
+        Serial.print(" anterior ");
+        Serial.print(MBHoldingRegister[1]);
+        delay(2);
+      }else{
+        MBHoldingRegister[0] = 0;        
+      }
+      
+      //MBHoldingRegister[0] = 0; //finaliza procesamiento
+      
 //      MBHoldingRegister[10] = random(0, 12);
 //      MBHoldingRegister[1] = random(0, 12);
 //      MBHoldingRegister[2] = random(0, 12);
@@ -145,32 +174,32 @@ void loop() {
 
       int Temporal[10];
 
-      Temporal[0] = MBHoldingRegister[3];
-      Temporal[1] = MBHoldingRegister[11];
-      Temporal[2] = MBHoldingRegister[12];
-      Temporal[3] = MBHoldingRegister[13];
-      Temporal[4] = MBHoldingRegister[14];
-      Temporal[5] = MBHoldingRegister[15];
-      Temporal[6] = MBHoldingRegister[16];
-      Temporal[7] = MBHoldingRegister[17];
-      Temporal[8] = MBHoldingRegister[18];
-      Temporal[9] = MBHoldingRegister[19];
+//      Temporal[0] = MBHoldingRegister[3];
+//      Temporal[1] = MBHoldingRegister[11];
+//      Temporal[2] = MBHoldingRegister[12];
+//      Temporal[3] = MBHoldingRegister[13];
+//      Temporal[4] = MBHoldingRegister[14];
+//      Temporal[5] = MBHoldingRegister[15];
+//      Temporal[6] = MBHoldingRegister[16];
+//      Temporal[7] = MBHoldingRegister[17];
+//      Temporal[8] = MBHoldingRegister[18];
+//      Temporal[9] = MBHoldingRegister[19];
 
       /// Enable Output 14
-      digitalWrite(14, MBHoldingRegister[14] );
+//      digitalWrite(14, MBHoldingRegister[14] );
 
 
       //// debug
 
-      for (int i = 0; i < 10; i++) {
-
-        Serial.print("[");
-        Serial.print(i);
-        Serial.print("] ");
-        Serial.print(Temporal[i]);
-
-      }
-      Serial.println("");
+//      for (int i = 0; i < 10; i++) {
+//
+//        Serial.print("[");
+//        Serial.print(i);
+//        Serial.print("] ");
+//        Serial.print(Temporal[i]);
+//
+//      }
+//      Serial.println("");
 
 
       //// rutine Modbus TCP
