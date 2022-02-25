@@ -66,7 +66,7 @@ void setup() {
 
 }
 //variables para la funcion de prueba
-float t = 0, tfin = 1, tpass = 0.002, aux, f = 100;
+float t = 0, tfin = 0.1, tpass = 0.001, aux, f = 100;
 int amp = 5, ind = 0;
 void loop() {
   //funcion a devolver en este caso va a ser una funcion seno de prueba
@@ -138,21 +138,28 @@ void loop() {
       if (t <= tfin)
       {
         MBHoldingRegister[0] = 1; //comienza procesamiento
-        MBHoldingRegister[1] = amp * sin(2 * PI * f * t);
+        MBHoldingRegister[1] = ((amp * sin(2 * PI * f * t - 2.094))+5)*1000;
         MBHoldingRegister[2] = ((amp * sin(2 * PI * f * t))+5)*1000;
-        MBHoldingRegister[3] = ind;
-        MBHoldingRegister[4] = t;
-        MBHoldingRegister[5] = ((amp * cos(2 * PI * f * t))+5)*1000;
+        MBHoldingRegister[3] = ((amp * sin(2 * PI * f * t + 2.094))+5)*1000;
+        MBHoldingRegister[4] = ((amp * cos(2 * PI * f * t))+5)*1000;
+        MBHoldingRegister[5] = MBHoldingRegister[2]+MBHoldingRegister[4];
+        Serial.print("tamaño arreglo y tiempo:  ");
+        Serial.print(ind);
+        Serial.println(t);
         ind++;
         t = t+tpass;
         Serial.print("paso por if: ");
         Serial.print(MBHoldingRegister[2]);
         Serial.print(" anterior ");
         Serial.print(MBHoldingRegister[1]);
-        delay(2);
       }else{
-        MBHoldingRegister[0] = 0;        
+        MBHoldingRegister[0] = 0;
+        Serial.print("tamaño arreglo en el else: ");
+        Serial.println(ind);
+        Serial.print("tiempo en el else: ");
+        Serial.println(t);
       }
+      
       
       //MBHoldingRegister[0] = 0; //finaliza procesamiento
       
