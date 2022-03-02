@@ -1,10 +1,12 @@
 
+import requests
 from pyModbusTCP.client import ModbusClient
 from tkinter import *
 import time
 
-# SERVER_HOST = "192.168.25.252"
-SERVER_HOST = "192.168.1.43"
+
+SERVER_HOST = "192.168.25.252"
+# SERVER_HOST = "192.168.1.43"
 SERVER_PORT = 502
 dato = list(range(2))
 client = ModbusClient()
@@ -53,37 +55,44 @@ def angle(int):
         # Solo guarda una señal de las 5 leidas
 
         # Guarda todas las señales en archivos separados
-        #señal 1
-        textfile = open("s1.txt", "w")
-        for i in range(len(dato)):
-            textfile.write(str(dato[i][0]))
-            textfile.write("\n")
-        textfile.close()
-        #señal 2
-        textfile = open("s2.txt", "w")
-        for i in range(len(dato)):
-            textfile.write(str(dato[i][1]))
-            textfile.write("\n")
-        textfile.close()
-        #señal 3
-        textfile = open("s3.txt", "w")
-        for i in range(len(dato)):
-            textfile.write(str(dato[i][2]))
-            textfile.write("\n")
-        textfile.close()
-        #señal 4
-        textfile = open("s4.txt", "w")
-        for i in range(len(dato)):
-            textfile.write(str(dato[i][3]))
-            textfile.write("\n")
-        textfile.close()
-        #señal 5
-        textfile = open("s5.txt", "w")
-        for i in range(len(dato)):
-            textfile.write(str(dato[i][4]))
-            textfile.write("\n")
-        textfile.close()
-        exit() #solo para pruebas
+        # #señal 1
+        # textfile = open("s1.txt", "w")
+        # for i in range(len(dato)):
+        #     textfile.write(str(dato[i][0]))
+        #     textfile.write("\n")
+        # textfile.close()
+        # #señal 2
+        # textfile = open("s2.txt", "w")
+        # for i in range(len(dato)):
+        #     textfile.write(str(dato[i][1]))
+        #     textfile.write("\n")
+        # textfile.close()
+        # #señal 3
+        # textfile = open("s3.txt", "w")
+        # for i in range(len(dato)):
+        #     textfile.write(str(dato[i][2]))
+        #     textfile.write("\n")
+        # textfile.close()
+        # #señal 4
+        # textfile = open("s4.txt", "w")
+        # for i in range(len(dato)):
+        #     textfile.write(str(dato[i][3]))
+        #     textfile.write("\n")
+        # textfile.close()
+        # #señal 5
+        # textfile = open("s5.txt", "w")
+        # for i in range(len(dato)):
+        #     textfile.write(str(dato[i][4]))
+        #     textfile.write("\n")
+       #  textfile.close()
+
+    datoT = [[dato[j][i] for j in range(len(dato))] for i in range(len(dato[0]))]
+    sample = list(range(1,100))
+    pload = {'base': sample, 's1': datoT[0], 's2': datoT[1], 's3': datoT[2], 's4': datoT[3], 's5': datoT[4]}
+    r = requests.post('http://rers.dyndns.org:7666/post', data = pload)
+    print(r.status_code)
+    print(r.text)
+    exit()
         
     #time.sleep(0.1)
 

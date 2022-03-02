@@ -43,9 +43,10 @@ labelEnt.grid(column = 0, row =4)
 
 def envio_datos():#accion a realizar cuando el usuario de click en el boton
     label.configure(text= 'boton')
+    print(P)
 button = tk.Button(window, text = "Enviar", command = envio_datos)#define el objeto boton y lo enlaza
 #al comando clickMe
-
+print(P.get())
 button.grid(column= 0, row = 5)#tamaño del boton
 
 

@@ -9,7 +9,7 @@ int ModbusTCP_port = 502;
 //////// Required for Modbus TCP / IP /// Requerido para Modbus TCP/IP /////////
 #define maxInputRegister 20
 //#define maxHoldingRegister 20
-#define maxHoldingRegister 3000// si aca pongo 10000 y en el arreglo de flotantes y[]tambien, no se puede compilar, exede la memoria con 8000 solo queda el 20% de la memoria dinamica
+#define maxHoldingRegister 20// si aca pongo 10000 y en el arreglo de flotantes y[]tambien, no se puede compilar, exede la memoria con 8000 solo queda el 20% de la memoria dinamica
 
 #define MB_FC_NONE 0
 #define MB_FC_READ_REGISTERS 3 //implemented
@@ -35,9 +35,9 @@ int ModbusTCP_port = 502;
 #define MB_TCP_REGISTER_NUMBER 10
 
 byte ByteArray[260];
-//unsigned int MBHoldingRegister[maxHoldingRegister];//original
-int MBHoldingRegister[maxHoldingRegister];
-//float MBHoldingRegister[maxHoldingRegister];
+unsigned int MBHoldingRegister[maxHoldingRegister];//original, unsigned e int son de 2bytes
+//int MBHoldingRegister[maxHoldingRegister];
+//float MBHoldingRegister[maxHoldingRegister];//no fue necesario usarlo
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -70,22 +70,14 @@ float t = 0, tfin = 0.1, tpass = 0.001, aux, f = 100;
 int amp = 5, ind = 0;
 void loop() {
   //funcion a devolver en este caso va a ser una funcion seno de prueba
-      
-  // Check if a client has connected // Modbus TCP/IP
+   
+  MBHoldingRegister[0] = 0; //bandera para inicio y fin de lectura desde pc
 
-
-
-
-   MBHoldingRegister[0] = 0; //finaliza procesamiento
-
-
-
-  
+  // Check if a client has connected // Modbus TCP/IP 
   WiFiClient client = MBServer.available();
   if (!client) {
     return;
   }
-
 
   boolean flagClientConnected = 0;
   byte byteFN = MB_FC_NONE;
@@ -108,41 +100,23 @@ void loop() {
 
       client.flush();
 
-      ///////// Holding Register [0] A [9] = 10 Holding Registers Writing
-      // registros donde esribe el esclavo para enviar al maestro
-
-
-//      //funcion a devolver en este caso va a ser una funcion seno de prueba
-//      while (t <= tfin)
-//      {
-//        y[ind] = amp * sin(2 * PI * f * t);
-//        ind++;
-//        t = t+tpass;
-//      }
-      //asignación a los registros
-//      for (i = 0; i < ind; i++)
-//      {
-//        MBHoldingRegister[i] = (y[i]+5)*100;
-//        if(i == 1)
-//        {
-//          Serial.print("entro al for: ");  
-//        }
-//      }
       Serial.println("PASO CONTROL");
-
-//      while(MBHoldingRegister[6] == 0)
-//      {
-//        Serial.println("esperando para empezar"); 
-//      }
-     
-      if (t <= tfin)
+      // por cada loop del programa se realiza un calculo y su correspondiente transmision
+      // por cada vuelta se escribe la bandera para que la pc siga leyendo junto con
+      // los 5 datos de interes a transmitir
+      // se les aplica un offset para convertir los valores negativos en positivos y 
+      // tambien para convertir los reales en enteros y así no tener que modificar la 
+      // transmision del codigo 
+      if (t <= tfin) // este condicional se intento con un while pero no funciono
       {
-        MBHoldingRegister[0] = 1; //comienza procesamiento
+        //señales a transmitir 
+        MBHoldingRegister[0] = 1; //comienza procesamiento, es la bandera "funcionando"
         MBHoldingRegister[1] = ((amp * sin(2 * PI * f * t - 2.094))+5)*1000;
         MBHoldingRegister[2] = ((amp * sin(2 * PI * f * t))+5)*1000;
         MBHoldingRegister[3] = ((amp * sin(2 * PI * f * t + 2.094))+5)*1000;
         MBHoldingRegister[4] = ((amp * cos(2 * PI * f * t))+5)*1000;
         MBHoldingRegister[5] = MBHoldingRegister[2]+MBHoldingRegister[4];
+        //
         Serial.print("tamaño arreglo y tiempo:  ");
         Serial.print(ind);
         Serial.println(t);
@@ -152,63 +126,15 @@ void loop() {
         Serial.print(MBHoldingRegister[2]);
         Serial.print(" anterior ");
         Serial.print(MBHoldingRegister[1]);
-      }else{
+      }else{//una vez terminado se coloca la bandera en cero para avisar 
         MBHoldingRegister[0] = 0;
         Serial.print("tamaño arreglo en el else: ");
         Serial.println(ind);
         Serial.print("tiempo en el else: ");
         Serial.println(t);
       }
+
       
-      
-      //MBHoldingRegister[0] = 0; //finaliza procesamiento
-      
-//      MBHoldingRegister[10] = random(0, 12);
-//      MBHoldingRegister[1] = random(0, 12);
-//      MBHoldingRegister[2] = random(0, 12);
-//      MBHoldingRegister[2] = random(0, 12);
-//      MBHoldingRegister[4] = 44;
-//      MBHoldingRegister[5] = -55;
-//      MBHoldingRegister[6] = 66;
-//      MBHoldingRegister[7] = random(0, 12);
-//      MBHoldingRegister[8] = random(0, 12);
-//      MBHoldingRegister[9] = random(0, 12);
-
-
-
-      ///// Holding Register [10] A [19] = 10 Holding Registers Reading
-      //registros donde escribe el maestro
-
-      int Temporal[10];
-
-//      Temporal[0] = MBHoldingRegister[3];
-//      Temporal[1] = MBHoldingRegister[11];
-//      Temporal[2] = MBHoldingRegister[12];
-//      Temporal[3] = MBHoldingRegister[13];
-//      Temporal[4] = MBHoldingRegister[14];
-//      Temporal[5] = MBHoldingRegister[15];
-//      Temporal[6] = MBHoldingRegister[16];
-//      Temporal[7] = MBHoldingRegister[17];
-//      Temporal[8] = MBHoldingRegister[18];
-//      Temporal[9] = MBHoldingRegister[19];
-
-      /// Enable Output 14
-//      digitalWrite(14, MBHoldingRegister[14] );
-
-
-      //// debug
-
-//      for (int i = 0; i < 10; i++) {
-//
-//        Serial.print("[");
-//        Serial.print(i);
-//        Serial.print("] ");
-//        Serial.print(Temporal[i]);
-//
-//      }
-//      Serial.println("");
-
-
       //// rutine Modbus TCP
       byteFN = ByteArray[MB_TCP_FUNC];
       Serial.println("******************1");
