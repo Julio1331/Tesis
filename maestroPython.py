@@ -7,6 +7,7 @@ import time
 SERVER_HOST = "192.168.1.43"
 SERVER_PORT = 502
 dato = list(range(2))
+dato.append([1,1,1,1,1,1]) 
 client = ModbusClient()
 
 client.host(SERVER_HOST)
@@ -23,7 +24,7 @@ def angle(int):
             print("no hay conexion "+ SERVER_HOST+":"+str(SERVER_PORT))
 
     if client.is_open():
-        client.write_single_register(13,slider.get())
+        client.write_single_register(9,slider.get())
 
    # if client.is_open():#si colocaba este if no funcionaba bien
         funcionando = list(range(1))
@@ -33,11 +34,12 @@ def angle(int):
             print("dentro while 0: ",funcionando)
         print("funcionando afuera",funcionando[0])
         #client.write_single_register(6,1)#para que empiece el procesamiento
-        while funcionando[0] == 1: #si o si dentro del while tiene que ser una sola lectura por vuelta si no se se pierden datos
-            print ("entro while 1 \n")
+        # while funcionando[0] == 1: #si o si dentro del while tiene que ser una sola lectura por vuelta si no se se pierden datos
+        while dato[-1][0] == 1:
+            # print ("entro while 1 \n")
             dato.append(client.read_holding_registers(0,6))#cada lectura comprende salida, e, up, ui, y ud
-            funcionando[0]=dato[-1].pop(0) #del ultimo arreglo leido de 6 valores extraigo el primero que corresponde a la 
-            print(funcionando,"\n")         #bandera "funcionando" para preguntar si sigue en 1 y en dato solo dejo los 5 valores de interes
+            # funcionando[0]=dato[-1].pop(0) #del ultimo arreglo leido de 6 valores extraigo el primero que corresponde a la 
+            # print(funcionando,"\n")         #bandera "funcionando" para preguntar si sigue en 1 y en dato solo dejo los 5 valores de interes
             # time.sleep(0.002)
         del dato[0] #los primeros dos valores del arreglo los toma diferentes (aún no se porque) por eso los elimino
         del dato[0]

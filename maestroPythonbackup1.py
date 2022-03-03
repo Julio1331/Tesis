@@ -1,5 +1,5 @@
 
-import requests
+import requests # PARA TRANSMISION A SERVIDOR
 from pyModbusTCP.client import ModbusClient
 from tkinter import *
 import time
@@ -86,6 +86,7 @@ def angle(int):
         #     textfile.write("\n")
        #  textfile.close()
 
+    ## PARA TRANSMITIR DATOS A SERVIDOR
     datoT = [[dato[j][i] for j in range(len(dato))] for i in range(len(dato[0]))]
     sample = list(range(1,100))
     pload = {'base': sample, 's1': datoT[0], 's2': datoT[1], 's3': datoT[2], 's4': datoT[3], 's5': datoT[4]}

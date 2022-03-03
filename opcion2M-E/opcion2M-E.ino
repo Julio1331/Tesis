@@ -1,9 +1,9 @@
 #include <ESP8266WiFi.h>
 
-//const char* ssid = "MovistarFibra-4176B2_ext";
-//const char* password = "valeruchi123";
-const char* ssid = "motoe6";
-const char* password = "julio1518";
+const char* ssid = "MovistarFibra-4176B2_ext";
+const char* password = "valeruchi123";
+//const char* ssid = "motoe6";
+//const char* password = "julio1518";
 int ModbusTCP_port = 502;
 
 //////// Required for Modbus TCP / IP /// Requerido para Modbus TCP/IP /////////
@@ -67,13 +67,14 @@ void setup() {
 }
 //variables para la funcion de prueba
 float t = 0, tfin = 0.1, tpass = 0.001, aux, f = 100;
-int amp = 5, ind = 0;
+int amp = 5, ind = 0, sumtiempo = 0, auxtime = 0;
+unsigned long myTime = 0;
 void loop() {
   //funcion a devolver en este caso va a ser una funcion seno de prueba
-   
+
   MBHoldingRegister[0] = 0; //bandera para inicio y fin de lectura desde pc
 
-  // Check if a client has connected // Modbus TCP/IP 
+  // Check if a client has connected // Modbus TCP/IP
   WiFiClient client = MBServer.available();
   if (!client) {
     return;
@@ -86,6 +87,7 @@ void loop() {
   int ByteDataLength;
   int MessageLength;
 
+  auxtime = millis();
   // Modbus TCP/IP
   while (client.connected()) {
     if (client.available())
@@ -100,62 +102,83 @@ void loop() {
 
       client.flush();
 
-      Serial.println("PASO CONTROL");
+      //      Serial.println("PASO CONTROL");
+      //      Serial.println(millis());
+      //      Serial.println(myTime);
+      //      if(sumtiempo == 0)//para compara tiempos sin los prit
+      //      {
+      //        auxtime = millis();
+      //        sumtiempo = 1;
+      //      }
+      //      sumtiempo = sumtiempo + millis()-myTime;
+      ////      Serial.println(millis()-myTime);
+      //      myTime = millis();
+
       // por cada loop del programa se realiza un calculo y su correspondiente transmision
       // por cada vuelta se escribe la bandera para que la pc siga leyendo junto con
       // los 5 datos de interes a transmitir
-      // se les aplica un offset para convertir los valores negativos en positivos y 
-      // tambien para convertir los reales en enteros y así no tener que modificar la 
-      // transmision del codigo 
+      // se les aplica un offset para convertir los valores negativos en positivos y
+      // tambien para convertir los reales en enteros y así no tener que modificar la
+      // transmision del codigo
+      Serial.println("client conectado y disponible");
       if (t <= tfin) // este condicional se intento con un while pero no funciono
       {
-        //señales a transmitir 
+        Serial.println("procesando señales");
+        //señales a transmitir
         MBHoldingRegister[0] = 1; //comienza procesamiento, es la bandera "funcionando"
-        MBHoldingRegister[1] = ((amp * sin(2 * PI * f * t - 2.094))+5)*1000;
-        MBHoldingRegister[2] = ((amp * sin(2 * PI * f * t))+5)*1000;
-        MBHoldingRegister[3] = ((amp * sin(2 * PI * f * t + 2.094))+5)*1000;
-        MBHoldingRegister[4] = ((amp * cos(2 * PI * f * t))+5)*1000;
-        MBHoldingRegister[5] = MBHoldingRegister[2]+MBHoldingRegister[4];
+        MBHoldingRegister[1] = ((MBHoldingRegister[9]* sin(2 * PI * f * t - 2.094))+5)*1000;
+        MBHoldingRegister[2] = ((MBHoldingRegister[10]* sin(2 * PI * f * t - 2.094))+5)*1000;
+        MBHoldingRegister[3] = ((MBHoldingRegister[11]* sin(2 * PI * f * t - 2.094))+5)*1000;
+        MBHoldingRegister[4] = ((MBHoldingRegister[12]* sin(2 * PI * f * t - 2.094))+5)*1000;
+        MBHoldingRegister[5] = ((MBHoldingRegister[12]*2* sin(2 * PI * f * t - 2.094))+5)*1000;
+        
+        //MBHoldingRegister[1] = ((amp * sin(2 * PI * f * t - 2.094))+5)*1000;
+        //MBHoldingRegister[2] = ((amp * sin(2 * PI * f * t)) + 5) * 1000;
+//        MBHoldingRegister[2] = (MBHoldingRegister[10]+5)*1000;
+//        MBHoldingRegister[3] = ((amp * sin(2 * PI * f * t + 2.094)) + 5) * 1000;
+//        MBHoldingRegister[4] = ((amp * cos(2 * PI * f * t)) + 5) * 1000;
+//        MBHoldingRegister[5] = MBHoldingRegister[2] + MBHoldingRegister[4];
         //
-        Serial.print("tamaño arreglo y tiempo:  ");
-        Serial.print(ind);
-        Serial.println(t);
+        //        Serial.print("tamaño arreglo y tiempo:  ");
+        //        Serial.print(ind);
+        //        Serial.println(t);
         ind++;
-        t = t+tpass;
-        Serial.print("paso por if: ");
-        Serial.print(MBHoldingRegister[2]);
-        Serial.print(" anterior ");
-        Serial.print(MBHoldingRegister[1]);
-      }else{//una vez terminado se coloca la bandera en cero para avisar 
+        t = t + tpass;
+        //        Serial.print("paso por if: ");
+        //        Serial.print(MBHoldingRegister[2]);
+        //        Serial.print(" anterior ");
+        //        Serial.print(MBHoldingRegister[1]);
+        Serial.println("proceso señal +1");
+      } else { //una vez terminado se coloca la bandera en cero para avisar
         MBHoldingRegister[0] = 0;
-        Serial.print("tamaño arreglo en el else: ");
-        Serial.println(ind);
-        Serial.print("tiempo en el else: ");
-        Serial.println(t);
+        //        Serial.print("tamaño arreglo en el else: ");
+        //        Serial.println(ind);
+        //        Serial.print("tiempo en el else: ");
+        //        Serial.println(t);
       }
 
-      
       //// rutine Modbus TCP
       byteFN = ByteArray[MB_TCP_FUNC];
-      Serial.println("******************1");
-      Serial.println(ByteArray[MB_TCP_REGISTER_START]);
-      Serial.println(ByteArray[MB_TCP_REGISTER_START + 1]);
-      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER]);
-      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER + 1]);
-      Serial.println("******************2");
-
+      //      Serial.println("******************1");
+      //      Serial.println(ByteArray[MB_TCP_REGISTER_START]);
+      //      Serial.println(ByteArray[MB_TCP_REGISTER_START + 1]);
+      //      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER]);
+      //      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER + 1]);
+      //      Serial.println("******************2");
+      Serial.println("rutina mb despues del proceso");
       Start = word(ByteArray[MB_TCP_REGISTER_START], ByteArray[MB_TCP_REGISTER_START + 1]);
       WordDataLength = word(ByteArray[MB_TCP_REGISTER_NUMBER], ByteArray[MB_TCP_REGISTER_NUMBER + 1]);
 
-      Serial.println(Start);
-      Serial.println(WordDataLength);
-      Serial.println("******************3");
+      //      Serial.println(Start);
+      //      Serial.println(WordDataLength);
+      //      Serial.println("******************3");
     }
 
     // Handle request
-
+    Serial.println("manejo de peticion");
     switch (byteFN) {
       case MB_FC_NONE:
+        Serial.println("nada para hacer");
         break;
 
       case MB_FC_READ_REGISTERS: // 03 Read Holding Registers
@@ -171,6 +194,7 @@ void loop() {
         client.write((const uint8_t *)ByteArray, MessageLength);
 
         byteFN = MB_FC_NONE;
+        Serial.println("placa escribe en registro");
 
         break;
 
@@ -181,6 +205,7 @@ void loop() {
         MessageLength = 12;
         client.write((const uint8_t *)ByteArray, MessageLength);
         byteFN = MB_FC_NONE;
+        Serial.println("placa lee de UN registro");
         break;
 
       case MB_FC_WRITE_MULTIPLE_REGISTERS: //16 Write Holding Registers
@@ -193,8 +218,10 @@ void loop() {
         MessageLength = 12;
         client.write((const uint8_t *)ByteArray, MessageLength);
         byteFN = MB_FC_NONE;
-
+        Serial.println("placa lee de multimples registros");
         break;
     }
   }
+  Serial.print("termino tod, tiempo: ");
+  Serial.println(millis() - auxtime);
 }
