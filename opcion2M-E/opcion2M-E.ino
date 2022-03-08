@@ -1,9 +1,13 @@
-#include <ESP8266WiFi.h>
+#include <ESP8266WiFi.h> //para eps8266
 
-const char* ssid = "MovistarFibra-4176B2_ext";
-const char* password = "valeruchi123";
-//const char* ssid = "motoe6";
-//const char* password = "julio1518";
+//librerias para esp32
+//#include "WiFi.h"
+
+
+//const char* ssid = "MovistarFibra-4176B2_ext";
+//const char* password = "valeruchi123";
+const char* ssid = "motoe6";
+const char* password = "julio1518";
 int ModbusTCP_port = 502;
 
 //////// Required for Modbus TCP / IP /// Requerido para Modbus TCP/IP /////////
@@ -67,7 +71,7 @@ void setup() {
 }
 //variables para la funcion de prueba
 float t = 0, tfin = 0.1, tpass = 0.001, aux, f = 100;
-int amp = 5, ind = 0, sumtiempo = 0, auxtime = 0;
+int amp = 5, ind = 0, sumtiempo = 0, auxtime = 0, offadd = 100, offmul = 1000;
 unsigned long myTime = 0;
 void loop() {
   //funcion a devolver en este caso va a ser una funcion seno de prueba
@@ -120,24 +124,24 @@ void loop() {
       // se les aplica un offset para convertir los valores negativos en positivos y
       // tambien para convertir los reales en enteros y así no tener que modificar la
       // transmision del codigo
-      Serial.println("client conectado y disponible");
+      //Serial.println("client conectado y disponible");
       if (t <= tfin) // este condicional se intento con un while pero no funciono
       {
-        Serial.println("procesando señales");
+        //Serial.println("procesando señales");
         //señales a transmitir
         MBHoldingRegister[0] = 1; //comienza procesamiento, es la bandera "funcionando"
-        MBHoldingRegister[1] = ((MBHoldingRegister[9]* sin(2 * PI * f * t - 2.094))+5)*1000;
-        MBHoldingRegister[2] = ((MBHoldingRegister[10]* sin(2 * PI * f * t - 2.094))+5)*1000;
-        MBHoldingRegister[3] = ((MBHoldingRegister[11]* sin(2 * PI * f * t - 2.094))+5)*1000;
-        MBHoldingRegister[4] = ((MBHoldingRegister[12]* sin(2 * PI * f * t - 2.094))+5)*1000;
-        MBHoldingRegister[5] = ((MBHoldingRegister[12]*2* sin(2 * PI * f * t - 2.094))+5)*1000;
+//        MBHoldingRegister[1] = ((MBHoldingRegister[9]* sin(2 * PI * f * t - 2.094))+offadd)*offmul;
+//        MBHoldingRegister[2] = ((MBHoldingRegister[10]* sin(2 * PI * f * t - 2.094))+offadd)*offmul;
+//        MBHoldingRegister[3] = ((MBHoldingRegister[11]* sin(2 * PI * f * t - 2.094))+offadd)*offmul;
+//        MBHoldingRegister[4] = ((MBHoldingRegister[12]* sin(2 * PI * f * t - 2.094))+offadd)*offmul;
+//        MBHoldingRegister[5] = ((MBHoldingRegister[12]*2* sin(2 * PI * f * t - 2.094))+offadd)*offmul;
         
-        //MBHoldingRegister[1] = ((amp * sin(2 * PI * f * t - 2.094))+5)*1000;
-        //MBHoldingRegister[2] = ((amp * sin(2 * PI * f * t)) + 5) * 1000;
-//        MBHoldingRegister[2] = (MBHoldingRegister[10]+5)*1000;
-//        MBHoldingRegister[3] = ((amp * sin(2 * PI * f * t + 2.094)) + 5) * 1000;
-//        MBHoldingRegister[4] = ((amp * cos(2 * PI * f * t)) + 5) * 1000;
-//        MBHoldingRegister[5] = MBHoldingRegister[2] + MBHoldingRegister[4];
+        MBHoldingRegister[1] = ((amp * sin(2 * PI * f * t - 2.094))+5)*1000;
+        MBHoldingRegister[2] = ((amp * sin(2 * PI * f * t)) + 5) * 1000;
+        MBHoldingRegister[2] = (MBHoldingRegister[10]+5)*1000;
+        MBHoldingRegister[3] = ((amp * sin(2 * PI * f * t + 2.094)) + 5) * 1000;
+        MBHoldingRegister[4] = ((amp * cos(2 * PI * f * t)) + 5) * 1000;
+        MBHoldingRegister[5] = MBHoldingRegister[2] + MBHoldingRegister[4];
         //
         //        Serial.print("tamaño arreglo y tiempo:  ");
         //        Serial.print(ind);
@@ -148,7 +152,7 @@ void loop() {
         //        Serial.print(MBHoldingRegister[2]);
         //        Serial.print(" anterior ");
         //        Serial.print(MBHoldingRegister[1]);
-        Serial.println("proceso señal +1");
+        //Serial.println("proceso señal +1");
       } else { //una vez terminado se coloca la bandera en cero para avisar
         MBHoldingRegister[0] = 0;
         //        Serial.print("tamaño arreglo en el else: ");
@@ -165,7 +169,7 @@ void loop() {
       //      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER]);
       //      Serial.println(ByteArray[MB_TCP_REGISTER_NUMBER + 1]);
       //      Serial.println("******************2");
-      Serial.println("rutina mb despues del proceso");
+      //Serial.println("rutina mb despues del proceso");
       Start = word(ByteArray[MB_TCP_REGISTER_START], ByteArray[MB_TCP_REGISTER_START + 1]);
       WordDataLength = word(ByteArray[MB_TCP_REGISTER_NUMBER], ByteArray[MB_TCP_REGISTER_NUMBER + 1]);
 
@@ -175,10 +179,10 @@ void loop() {
     }
 
     // Handle request
-    Serial.println("manejo de peticion");
+    //Serial.println("manejo de peticion");
     switch (byteFN) {
       case MB_FC_NONE:
-        Serial.println("nada para hacer");
+        //Serial.println("nada para hacer");
         break;
 
       case MB_FC_READ_REGISTERS: // 03 Read Holding Registers
@@ -194,7 +198,7 @@ void loop() {
         client.write((const uint8_t *)ByteArray, MessageLength);
 
         byteFN = MB_FC_NONE;
-        Serial.println("placa escribe en registro");
+        //Serial.println("placa escribe en registro");
 
         break;
 
@@ -205,7 +209,7 @@ void loop() {
         MessageLength = 12;
         client.write((const uint8_t *)ByteArray, MessageLength);
         byteFN = MB_FC_NONE;
-        Serial.println("placa lee de UN registro");
+        //Serial.println("placa lee de UN registro");
         break;
 
       case MB_FC_WRITE_MULTIPLE_REGISTERS: //16 Write Holding Registers
@@ -218,7 +222,7 @@ void loop() {
         MessageLength = 12;
         client.write((const uint8_t *)ByteArray, MessageLength);
         byteFN = MB_FC_NONE;
-        Serial.println("placa lee de multimples registros");
+        //Serial.println("placa lee de multimples registros");
         break;
     }
   }

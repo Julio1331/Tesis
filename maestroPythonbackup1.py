@@ -90,7 +90,7 @@ def angle(int):
     datoT = [[dato[j][i] for j in range(len(dato))] for i in range(len(dato[0]))]
     sample = list(range(1,100))
     pload = {'base': sample, 's1': datoT[0], 's2': datoT[1], 's3': datoT[2], 's4': datoT[3], 's5': datoT[4]}
-    r = requests.post('http://rers.dyndns.org:7666/post', data = pload)
+    r = requests.post('http://186.56.137.182:7666/post', data = pload)
     print(r.status_code)
     print(r.text)
     exit()

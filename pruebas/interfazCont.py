@@ -8,8 +8,9 @@ import tkinter as tk
 from tkinter.tix import COLUMN
 from turtle import left 
 
-# SERVER_HOST = "192.168.25.252"
-SERVER_HOST = "192.168.1.43"
+# SERVER_HOST = "192.168.25.254"
+SERVER_HOST = "192.168.25.252"
+# SERVER_HOST = "192.168.1.43"
 SERVER_PORT = 502
 dato = list(range(2))
 dato.append([1,1,1,1,1,1]) 
@@ -37,7 +38,12 @@ def envio_datos():
         setpoint.append(int(D.get()))
         print(type(setpoint))
         print(setpoint)
-        client.write_multiple_registers(9,setpoint)
+        #client.write_multiple_registers(9,setpoint)#escribe todos los registros juntos
+        client.write_single_register(9,setpoint[0])
+        client.write_single_register(10,setpoint[1])
+        client.write_single_register(11,setpoint[2])
+        client.write_single_register(12,setpoint[3])
+    
         print("termino escritura")
 
 def recepcion():
@@ -70,7 +76,7 @@ def recepcion():
         del dato[0]
         for i in range(len(dato)): #recorro la lista bidimensional para quitar los offset de suma y multiplicacion
             for j in range(len(dato[i])):   #y asi obtener los valores con coma
-                dato[i][j] = dato[i][j]/1000-5
+                dato[i][j] = dato[i][j]/1000-100
         print ("tamaño arreglo", len(dato))
         
         # # Guarda todas las señales juntas en un solo archivo
